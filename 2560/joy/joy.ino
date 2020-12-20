@@ -36,43 +36,44 @@ void setup()
     pinMode(pinButtons[buttonIndex], INPUT);
   }
 
-  Serial.begin(115200);
+  Serial.begin(230400);
 }
 
 void loop()
 {
+  String controlState;
+
   // Iterate each axis and print its value
   for (int AxisIndex = 0; AxisIndex < 6; AxisIndex++) {
-    GetAnalogValue(AxisIndex );
+    GetAnalogValue(AxisIndex);
+    controlState += GetAnalogValue(AxisIndex);
+    controlState += ",";
   }
-  
-  // Iterate each button and print its value
-  for (int buttonIndex = 0; buttonIndex < (sizeof(pinButtons) / sizeof(pinButtons[0])); buttonIndex++) {
-    GetButtonValue(pinButtons[buttonIndex]);
-  };
 
-  Serial.println();
-  delay(30);
+  // Iterate each button and print its value
+  int pinButtonsLength = (sizeof(pinButtons) / sizeof(pinButtons[0]));
+  for (int buttonIndex = 0; buttonIndex < pinButtonsLength; buttonIndex++) {
+    controlState += GetButtonValue(pinButtons[buttonIndex]);
+    if (buttonIndex != (pinButtonsLength - 1)) {
+      controlState += ",";
+    };
+
+  };
+  Serial.print(controlState);Serial.print('#');
+  delay(50);
 }
 
-void GetAnalogValue(int AxisIndex) {
+int32_t GetAnalogValue(int AxisIndex) {
   Axis singleAxis = arrayOfAxis[AxisIndex];
   singleAxis.value = analogRead(singleAxis.pin);
+  int32_t axisValue = 0;
   if (singleAxis.isActive == true) {
-    int32_t axisValue = map(singleAxis.value, singleAxis.analogMinimum, singleAxis.analogMaximum, singleAxis.minRes, singleAxis.maxRes);
-    Serial.print(axisValue);
-  } else {
-    Serial.print(0);
-  };
-  Serial.print(",");
+    axisValue = map(singleAxis.value, singleAxis.analogMinimum, singleAxis.analogMaximum, singleAxis.minRes, singleAxis.maxRes);
+  }
+  return axisValue;
 }
 
-void GetButtonValue(int joyButton) {
+int GetButtonValue(int joyButton) {
   int PinState = digitalRead(joyButton);
-  if (PinState == HIGH) {
-    Serial.write("1");
-  } else {
-    Serial.write("0");
-  }
-  Serial.write(",");
+  return PinState;
 }
