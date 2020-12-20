@@ -45,6 +45,7 @@ void loop()
   for (int AxisIndex = 0; AxisIndex < 6; AxisIndex++) {
     GetAnalogValue(AxisIndex );
   }
+  
   // Iterate each button and print its value
   for (int buttonIndex = 0; buttonIndex < (sizeof(pinButtons) / sizeof(pinButtons[0])); buttonIndex++) {
     GetButtonValue(pinButtons[buttonIndex]);
