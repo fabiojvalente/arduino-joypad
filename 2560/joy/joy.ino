@@ -4,6 +4,7 @@ int pinButtons[] = {53, 49, 45, 41, 37};
 struct Axis {
   int pin;
   int value;
+  
   //  Minimum and Max Values read on the axis pin, Ex: 0 => 1024 at 5v
   int analogMinimum;
   int analogMaximum;
@@ -41,7 +42,7 @@ void setup()
 
 void loop()
 {
-  String controlState;
+  String controlState = "<";
 
   // Iterate each axis and print its value
   for (int AxisIndex = 0; AxisIndex < 6; AxisIndex++) {
@@ -59,7 +60,9 @@ void loop()
     };
 
   };
-  Serial.print(controlState);Serial.print('#');
+  controlState += ">";
+  Serial.println(controlState);
+//  Serial.print('<');Serial.print(controlState);Serial.print('>');
   delay(50);
 }
 

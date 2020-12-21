@@ -1,71 +1,93 @@
-
-// 16u2 Firmware
-
 #include "HID-Project.h"
 
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
 
 void setup() {
-  //  USB Serial
-  Serial.begin(230400);
-
-  //  IO MCU Serial
   Serial1.begin(230400);
-//  Serial1.setTimeout(15);
-
-
-
+  Serial.begin(230400);
+  Gamepad.begin();
 }
 
 void loop() {
-    String msg = getMessage();
-    Serial.println(msg );
-//  while (Serial1.available() > 0) {
-//    String controlState = Serial1.readStringUntil('#');
-//
-//    Serial.println("BEGIN");
-//    Serial.println(controlState);
-//    Serial.println("End");
-//    int xAxisReading = getValue(controlState, ',', 0);
-//    int yAxisReading = getValue(controlState, ',', 1);
-//    int rxAxisReading = getValue(controlState, ',', 2);
-//    int ryAxisReading = getValue(controlState, ',', 3);
-//    int zAxisReading = getValue(controlState, ',', 4);
-//    int rzAxisReading = getValue(controlState, ',', 5);
-//        
-//    Gamepad.xAxis(xAxisReading);  
-//    Gamepad.yAxis(yAxisReading);
-//    Gamepad.rxAxis(rxAxisReading);
-//    Gamepad.ryAxis(ryAxisReading);
-//    Gamepad.zAxis(zAxisReading);
-//    Gamepad.rzAxis(rzAxisReading);
-//  }
-//  
-//  Gamepad.write();
-//
-  delay(20);
+  recvWithStartEndMarkers();
+  getMessage();
 }
 
-String getMessage() {
-  String msg = "";
+void recvWithStartEndMarkers() {
+  static boolean recvInProgress = false;
+  static byte ndx = 0;
+  char startMarker = '<';
+  char endMarker = '>';
+  char rc;
 
-  while (Serial1.available()>0) {
-    msg =  Serial1.readStringUntil('#');
-  }
-  return msg;
-}
+  while (Serial1.available() > 0 && newData == false) {
+    rc = Serial1.read();
 
-int getValue(String data, char separator, int index)
-{
-  int found = 0;
-  int strIndex[] = { 0, -1 };
-  int maxIndex = data.length() - 1;
+    if (recvInProgress == true) {
+      if (rc != endMarker) {
+        receivedChars[ndx] = rc;
+        ndx++;
+        if (ndx >= numChars) {
+          ndx = numChars - 1;
+        }
+      }
+      else {
+        receivedChars[ndx] = '\0'; // terminate the string
+        recvInProgress = false;
+        ndx = 0;
+        newData = true;
+      }
+    }
 
-  for (int i = 0; i <= maxIndex && found <= index; i++) {
-    if (data.charAt(i) == separator || i == maxIndex) {
-      found++;
-      strIndex[0] = strIndex[1] + 1;
-      strIndex[1] = (i == maxIndex) ? i + 1 : i;
+    else if (rc == startMarker) {
+      recvInProgress = true;
     }
   }
-  return found > index ? data.substring(strIndex[0], strIndex[1]).toInt() : 0;
+}
+
+char getMessage() {
+  if (newData == true) {
+    processControllerInput();
+    newData = false;
+    //        return receivedChars;
+  }
+}
+
+void processControllerInput() {
+  char *pch =  NULL;
+  char *inputs[32];
+  byte index = 0;
+
+  pch = strtok  (receivedChars, ",:;");
+  while (pch != NULL)
+  {
+    inputs[index] = pch;
+    index++;
+    pch = strtok (NULL, ",:;");
+  }
+
+  Gamepad.xAxis(atol ( inputs[0] ));
+  Gamepad.yAxis(atol ( inputs[1] ));
+  Gamepad.rxAxis(atol ( inputs[2] ));
+  Gamepad.ryAxis(atol ( inputs[3] ));
+  Gamepad.zAxis( atol ( inputs[4] ));
+  Gamepad.rzAxis(atol ( inputs[5] ));
+
+  for (int button = 1; button < 6; button++) {
+    long buttonState = atol (  inputs[(button + 5)] );
+    Serial.println(buttonState);
+    if (  buttonState == 1) {
+      Gamepad.press(button);
+    }
+    else {
+      Gamepad.release(button);
+    }
+  }
+
+  Gamepad.write();
+  delay(5);
+
+
 }
