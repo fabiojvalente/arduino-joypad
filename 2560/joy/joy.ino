@@ -34,7 +34,7 @@ void setup()
 {
 
   for (int buttonIndex = 0; buttonIndex < sizeof(pinButtons); buttonIndex++) {
-    pinMode(pinButtons[buttonIndex], INPUT);
+    pinMode(pinButtons[buttonIndex], INPUT_PULLUP);
   }
 
   Serial.begin(230400);
@@ -78,5 +78,5 @@ int32_t GetAnalogValue(int AxisIndex) {
 
 int GetButtonValue(int joyButton) {
   int PinState = digitalRead(joyButton);
-  return PinState;
+  return !PinState;
 }
