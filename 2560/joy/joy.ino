@@ -1,5 +1,5 @@
 
-int pinButtons[] = {53, 49, 45, 41, 37};
+int pinButtons[] = {53, 51, 49, 47, 45, 43, 41, 39, 37, 35,33,31,29,27};
 
 struct Axis {
   int pin;
@@ -9,7 +9,7 @@ struct Axis {
   int analogMinimum;
   int analogMaximum;
 
-  //  values to map to, Ex: Z axis is a 8bit range, = -128 => 128
+  //  Values to map to, Ex: Z axis is a 8bit range, = -128 => 128
   int32_t minRes;
   int32_t maxRes;
 
@@ -17,17 +17,17 @@ struct Axis {
 
 } arrayOfAxis[6] = {
   //    xAxis
-  {A0, 0, 0, 1023, -32768, 32768, false},
-  //    yAxis
-  {A1, 0, 0, 1023, -32768,  32768, false},
+  {A0, 0, 0, 1023, -32768, 32767, false},
+  //    yAxis     
+  {A1, 0, 0, 1023, -32768,  32767, false},
   // rxAxis
-  {A2, 0, 0, 1023, -32768,  32768, false},
+  {A2, 0, 0, 1023, -32768,  32767, true},
   // ryAxis
-  {A3, 0, 0, 1023, -32768,  32768, false},
+  {A3, 0, 0, 1023, -32768,  32767, true},
   //    zAxis
-  {A4, 0, 0, 1023, -128, 128, true},
+  {A4, 0, 0, 1023, -128, 127, true},
   //   rzAxis
-  {A5, 0, 0, 1023, -128, 128, false}
+  {A5, 0, 0, 1023, -128, 127, false}
 };
 
 void setup()

@@ -1,6 +1,7 @@
 #include "HID-Project.h"
 
-const byte numChars = 32;
+//Change this when incrasing the message sentence
+const byte numChars = 68;
 char receivedChars[numChars];
 boolean newData = false;
 
@@ -55,9 +56,12 @@ char getMessage() {
   }
 }
 
+//Change this when incrasing the message sentence
 void processControllerInput() {
   char *pch =  NULL;
-  char *inputs[32];
+  
+  // How many inputs are we sending over serial ?
+  char *inputs[20];
   byte index = 0;
 
   pch = strtok  (receivedChars, ",:;");
@@ -74,10 +78,9 @@ void processControllerInput() {
   Gamepad.ryAxis(atol ( inputs[3] ));
   Gamepad.zAxis( atol ( inputs[4] ));
   Gamepad.rzAxis(atol ( inputs[5] ));
-
-  for (int button = 1; button < 6; button++) {
+    
+  for (int button = 1; button < 15; button++) {
     long buttonState = atol (  inputs[(button + 5)] );
-    Serial.println(buttonState);
     if (  buttonState == 1) {
       Gamepad.press(button);
     }
@@ -87,7 +90,7 @@ void processControllerInput() {
   }
 
   Gamepad.write();
-  delay(5);
+  delay(50);
 
 
 }
